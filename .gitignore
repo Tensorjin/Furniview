@@ -1,0 +1,25 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Log files
+*.log
+logs
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Environment variables
+.env*
+!.env.example
+
+# Dependency directories (already covered in sub-gitignores, but good practice)
+node_modules/
+
+# Build output (if any at root)
+dist/
+build/

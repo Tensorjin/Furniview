@@ -1,0 +1,68 @@
+/* Basic styles for DashboardPage */
+.container {
+  padding: 20px;
+  max-width: 800px;
+  margin: 40px auto;
+  border: 1px solid #eee;
+  border-radius: 8px;
+}
+
+.uploadSection {
+  margin-bottom: 30px;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+}
+
+.uploadSection h2 {
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+
+.uploadSection input[type="file"] {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.uploadButton {
+  padding: 10px 15px;
+  background-color: #28a745; /* Green */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  font-size: 1em;
+}
+
+.uploadButton:hover {
+  background-color: #218838;
+}
+
+.uploadButton:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+.error {
+  color: #d9534f;
+  margin-top: 10px;
+  font-size: 0.9em;
+}
+
+.success {
+  color: #28a745;
+  margin-top: 10px;
+  font-size: 0.9em;
+}
+
+.divider {
+    margin: 30px 0;
+    border: 0;
+    border-top: 1px solid #eee;
+}
+
+.listSection {
+    /* Styles for the list section if needed */
+}
