@@ -85,10 +85,11 @@ const SignupPage: React.FC = () => {
       }
 
       // 2. Call backend to create the company profile
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
       try {
           console.log('Attempting to create company profile...');
           await axios.post(
-              'http://localhost:3001/api/companies',
+              `${apiUrl}/api/companies`,
               { companyName },
               {
                   headers: {

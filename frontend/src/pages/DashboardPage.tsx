@@ -42,9 +42,10 @@ const DashboardPage: React.FC = () => {
     // Optional: Add other form data if needed (e.g., name, description)
     // formData.append('name', 'Custom Name');
     // formData.append('description', 'Custom Description');
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
     try {
-      const response = await axios.post('http://localhost:3001/api/upload', formData, {
+      const response = await axios.post(`${apiUrl}/api/upload`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'Authorization': `Bearer ${session.access_token}`, // Include the auth token

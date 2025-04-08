@@ -31,11 +31,12 @@ const ModelDetailPage: React.FC = () => {
         const fetchModelDetails = async () => {
             setLoading(true);
             setError(null);
+            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
             try {
-                const response = await axios.get<FurnitureDetail>(`http://localhost:3001/api/furniture/${id}`);
+                const response = await axios.get<FurnitureDetail>(`${apiUrl}/api/furniture/${id}`);
                 setModel(response.data);
             } catch (err: any) {
-                console.error(`Error fetching model details for ID ${id}:`, err);
+                console.error(`Error fetching model details for ID ${id} from ${apiUrl}:`, err);
                 setError(err.response?.data?.error || err.message || 'Failed to load model details.');
             } finally {
                 setLoading(false);

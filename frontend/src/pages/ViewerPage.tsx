@@ -21,12 +21,13 @@ const ViewerPage: React.FC = () => {
         const fetchFurniture = async () => {
             setLoading(true);
             setError(null);
+            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001'; // Fallback for local dev if needed
             try {
-                // Fetch from the backend API endpoint
-                const response = await axios.get<FurnitureItem[]>('http://localhost:3001/api/furniture');
+                // Fetch from the backend API endpoint using environment variable
+                const response = await axios.get<FurnitureItem[]>(`${apiUrl}/api/furniture`);
                 setFurniture(response.data);
             } catch (err: any) {
-                console.error("Error fetching furniture:", err);
+                console.error("Error fetching furniture from:", `${apiUrl}/api/furniture`, err);
                 setError(err.response?.data?.error || err.message || 'Failed to load furniture models.');
             } finally {
                 setLoading(false);
