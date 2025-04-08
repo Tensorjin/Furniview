@@ -4,6 +4,7 @@ import SignupPage from './pages/SignupPage';
 import DashboardPage from './pages/DashboardPage';
 import ViewerPage from './pages/ViewerPage';
 import ModelDetailPage from './pages/ModelDetailPage';
+import CreateProfilePage from './pages/CreateProfilePage'; // Import CreateProfilePage
 import ProtectedRoute from './components/ProtectedRoute'; // Import ProtectedRoute
 import { useAuth } from './context/AuthContext'; // Import useAuth to conditionally show links
 import './App.css'; // Keep or replace with your global styles
@@ -46,6 +47,7 @@ function App() {
           <Route element={<ProtectedRoute />}>
             {/* Routes nested inside ProtectedRoute require authentication */}
             <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/create-profile" element={<CreateProfilePage />} /> {/* Add route for profile creation */}
             {/* Add other protected routes here */}
           </Route>
 

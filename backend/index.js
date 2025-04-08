@@ -5,6 +5,7 @@ const { createClient } = require('@supabase/supabase-js');
 const uploadRoutes = require('./routes/upload'); // Import upload routes
 const furnitureRoutes = require('./routes/furniture'); // Import furniture routes
 const authRoutes = require('./routes/auth'); // Import auth routes
+const companyRoutes = require('./routes/company'); // Import company routes
 const { requireAuth } = require('./middleware/authMiddleware'); // Import auth middleware
 
 // Check for Supabase environment variables
@@ -33,11 +34,15 @@ app.get('/', (req, res) => {
 
 // API Routes
 // Public routes (like furniture list/details and auth endpoints) don't need requireAuth here
-app.use('/api/auth', authRoutes);
-app.use('/api/furniture', furnitureRoutes);
+app.use('/api/auth', authRoutes); // Public auth routes
+app.use('/api/furniture', furnitureRoutes); // Public furniture routes
 
 // Protected routes - apply requireAuth middleware *before* the route handler
 app.use('/api/upload', requireAuth, uploadRoutes);
+app.use('/api/companies', requireAuth, companyRoutes); // Company routes are protected
+
+
+// Start the server
 
 
 // Start the server

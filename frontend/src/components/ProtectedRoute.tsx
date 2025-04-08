@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 interface ProtectedRouteProps {
@@ -7,21 +7,29 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = () => {
-  const { session, loading } = useAuth(); // Get session and loading state
+  const { session, companyProfile, loading, loadingProfile } = useAuth();
+  const location = useLocation(); // Get current location
 
-  if (loading) {
-    // Optional: Show a loading indicator while checking auth status
-    return <div>Loading authentication status...</div>;
+  // Show loading indicator while checking session or profile
+  if (loading || loadingProfile) {
+    return <div>Loading...</div>; // Or a more sophisticated loading spinner
   }
 
+  // If no session, redirect to login
   if (!session) {
-    // If no session (user not logged in), redirect to the login page
-    // Pass the current location to redirect back after login (optional)
-    return <Navigate to="/login" replace />;
+    // Pass the current location to redirect back after login
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // If session exists (user logged in), render the child route component
-  return <Outlet />; // Renders the nested route defined in App.tsx
+  // If session exists, but no company profile, redirect to create profile page
+  // Exception: Don't redirect if already on the create-profile page
+  if (!companyProfile && location.pathname !== '/create-profile') {
+    console.log("User logged in but no profile, redirecting to /create-profile");
+    return <Navigate to="/create-profile" replace />;
+  }
+
+  // If session and profile exist (or if on create-profile page without profile), render the requested route
+  return <Outlet />;
 };
 
 export default ProtectedRoute;
