@@ -36,21 +36,3 @@
   color: #888;
   font-size: 1.2em;
 }
-
-.viewerContainer {
-    margin-top: 30px;
-    margin-bottom: 30px;
-    border: 1px solid #ddd; /* Add a border around the canvas */
-    position: relative; /* Needed for potential overlays or absolute positioning inside */
-}
-
-.backLink {
-    display: inline-block;
-    margin-top: 20px;
-    color: #007bff;
-    text-decoration: none;
-}
-
-.backLink:hover {
-    text-decoration: underline;
-}

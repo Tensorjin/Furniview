@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios'; // Still needed to call our backend for company profile creation
-import { useNavigate, Link } from 'react-router-dom'; // Import Link
-import { supabase } from '../supabaseClient'; // Import Supabase client
-import { useAuth } from '../context/AuthContext'; // Import useAuth hook
-import styles from './SignupPage.module.css'; // Import CSS module
+import axios from 'axios';
+import { useNavigate, Link } from 'react-router-dom';
+import { supabase } from '../supabaseClient';
+import { useAuth } from '../context/AuthContext';
+import styles from './SignupPage.module.css';
 
 const SignupPage: React.FC = () => {
-  const { session } = useAuth(); // Get session state
-  const [googleLoading, setGoogleLoading] = useState<boolean>(false); // Loading state for Google button
+  const { session, fetchCompanyProfile } = useAuth(); // Get session state and profile fetch function
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [companyName, setCompanyName] = useState<string>('');
@@ -67,71 +66,71 @@ const SignupPage: React.FC = () => {
 
       console.log('Supabase signup successful, user ID:', signUpData.user.id);
 
-      // 2. Call our backend to create the company profile, passing the necessary info
-      // Note: The backend signup endpoint needs modification to handle this flow
-      // It should ideally take the userId from the *already authenticated* Supabase user
-      // For now, we'll send it, but this needs refinement for security.
-      // A better approach might be a Supabase Function triggered on auth.users insert.
-      try {
-          const profileResponse = await axios.post('http://localhost:3001/api/auth/signup', {
-              // WARNING: Sending email/password again is NOT ideal.
-              // The backend endpoint should be refactored.
-              // For now, just sending companyName and relying on backend logic (which needs update)
-              email: email, // Backend needs refactoring to not require this
-              password: '***', // Backend needs refactoring to not require this
-              companyName: companyName,
-              // Ideally, backend uses the token from Supabase signup to verify and get userId
-          });
-          console.log('Company profile creation response:', profileResponse.data);
-          setSuccessMessage(profileResponse.data.message || 'Signup complete! Redirecting...');
+      console.log('Supabase signup successful, user ID:', signUpData.user.id);
 
-      } catch (profileError: any) {
-          console.error('Error creating company profile:', profileError);
-          // Optional: Attempt to delete the Supabase auth user if profile creation fails
-          // await supabase.auth.admin.deleteUser(signUpData.user.id); // Requires admin privileges
-          setError(`Signup succeeded but failed to create company profile: ${profileError.response?.data?.error || profileError.message}`);
+      // Ensure we have a session token to make the authenticated call
+      // This might require waiting briefly for the onAuthStateChange listener to update the session
+      // Or relying on the session returned directly if available and confirmation isn't needed.
+      // For simplicity here, we assume a session becomes available quickly if no confirmation needed.
+      // A more robust solution might involve polling getSession or using the session from signUpData if present.
+
+      // Let's try getting the session again immediately after signup
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+
+      if (!currentSession) {
+          // This might happen if email confirmation is required.
+          setSuccessMessage('Signup successful! Please check your email to confirm your account before logging in.');
           setLoading(false);
-          return; // Stop on profile creation error
+          return;
       }
 
+      // 2. Call backend to create the company profile
+      try {
+          console.log('Attempting to create company profile...');
+          await axios.post(
+              'http://localhost:3001/api/companies',
+              { companyName },
+              {
+                  headers: {
+                      'Authorization': `Bearer ${currentSession.access_token}`
+                  }
+              }
+          );
+          console.log('Company profile created successfully.');
+          // Refresh profile in context
+          await fetchCompanyProfile();
+          setSuccessMessage('Signup and profile creation successful! Redirecting to dashboard...');
+          // Redirect to dashboard directly since profile is created
+           setTimeout(() => {
+               navigate('/dashboard');
+           }, 1500);
 
-      // Redirect to login page after a short delay on full success
-      setTimeout(() => {
-        navigate('/login');
-      }, 2000);
+      } catch (profileError: any) {
+          console.error('Error creating company profile after signup:', profileError);
+          // If profile creation failed, the user exists in Supabase Auth but not in our companies table.
+          // They will be redirected to /create-profile next time they log in.
+          setError(`Signup succeeded but failed to create company profile: ${profileError.response?.data?.error || profileError.message}. Please try logging in.`);
+          // Don't delete the auth user automatically, let them try logging in.
+          setLoading(false);
+          return;
+      }
 
     } catch (err: any) {
       console.error('Supabase signup error:', err);
-      setError(err.message || 'Signup failed. Please try again.');
+      // Handle specific Supabase errors like "User already registered"
+      if (err.message && err.message.includes('User already registered')) {
+          setError('An account with this email already exists.');
+      } else {
+          setError(err.message || 'Signup failed. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  const handleGoogleSignup = async () => {
-    setGoogleLoading(true);
-    setError(null);
-    try {
-      // Same method as login, Supabase handles user creation if needed
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-      });
-      if (error) {
-        throw error;
-      }
-      // Redirect handled by Supabase, session update by AuthContext listener
-    } catch (err: any) {
-      console.error('Google signup error:', err);
-      setError(err.message || 'Google signup failed.');
-      setGoogleLoading(false); // Reset loading on error
-    }
-     // Don't setGoogleLoading(false) on success, page redirects
-  };
-
   return (
     <div className={styles.container}>
       <h1>Sign Up</h1>
-      {/* Email/Password Form */}
       <form onSubmit={handleSubmit} className={styles.form}>
         <div className={styles.formGroup}>
           <label htmlFor="companyName">Company Name:</label>
@@ -170,30 +169,13 @@ const SignupPage: React.FC = () => {
         </div>
         {error && <p className={styles.error}>{error}</p>}
         {successMessage && <p className={styles.success}>{successMessage}</p>}
-        <button type="submit" disabled={loading || googleLoading} className={styles.submitButton}>
-          {loading ? 'Signing up...' : 'Sign Up with Email'}
+        <button type="submit" disabled={loading} className={styles.submitButton}>
+          {loading ? 'Signing up...' : 'Sign Up'}
         </button>
+         <p className={styles.loginLink}>
+          Already have an account? <Link to="/login">Login</Link>
+        </p>
       </form>
-
-      <div className={styles.divider}>OR</div>
-
-       {/* Google Signup Button */}
-       <button
-        onClick={handleGoogleSignup}
-        disabled={loading || googleLoading}
-        className={`${styles.submitButton} ${styles.googleButton}`}
-      >
-        {googleLoading ? 'Redirecting...' : 'Sign Up with Google'}
-      </button>
-
-       {/* Display general errors */}
-       {error && !loading && !googleLoading && <p className={styles.error}>{error}</p>}
-       {successMessage && <p className={styles.success}>{successMessage}</p>}
-
-
-       <p className={styles.loginLink}>
-        Already have an account? <Link to="/login">Login</Link>
-      </p>
     </div>
   );
 };

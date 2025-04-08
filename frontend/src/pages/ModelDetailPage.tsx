@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useParams, Link } from 'react-router-dom'; // Import Link
-import ModelViewer from '../components/ModelViewer'; // Import the viewer component
+import { useParams } from 'react-router-dom'; // To get the model ID from the URL
 import styles from './ModelDetailPage.module.css';
 
 // Define an interface for the detailed furniture item structure
@@ -62,22 +61,11 @@ const ModelDetailPage: React.FC = () => {
                         </a>
                     )}
 
-                    {/* Integrate the ModelViewer component */}
-                    <div className={styles.viewerContainer}>
-                        {model.gltf_url ? (
-                            <ModelViewer modelUrl={model.gltf_url} />
-                        ) : (
-                            <div className={styles.viewerPlaceholder}>
-                                <p>3D model preview not available.</p>
-                            </div>
-                        )}
+                    <div className={styles.viewerPlaceholder}>
+                        {/* TODO: Implement 3D viewer here using Three.js / @react-three/fiber */}
+                        <p>3D Viewer will be here</p>
                     </div>
-
-                    <Link to="/" className={styles.backLink}>&larr; Back to Browse</Link>
                 </>
-            )}
-            {!loading && !model && !error && (
-                 <p>Model not found or not available.</p> // Handle case where model is null after loading
             )}
         </div>
     );

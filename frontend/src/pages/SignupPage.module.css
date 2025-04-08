@@ -96,28 +96,3 @@
 .loginLink a:hover {
     text-decoration: underline;
 }
-
-.divider {
-    margin: 20px 0;
-    text-align: center;
-    border-bottom: 1px solid #ccc;
-    line-height: 0.1em;
-}
-
-.divider span {
-    background: #f9f9f9;
-    padding: 0 10px;
-    color: #888;
-}
-
-.googleButton {
-    background-color: #db4437; /* Google Red */
-}
-
-.googleButton:hover {
-    background-color: #c33d2e;
-}
-
-.googleButton:disabled {
-    background-color: #e07a73;
-}
