@@ -7,6 +7,7 @@ import styles from './SignupPage.module.css'; // Import CSS module
 
 const SignupPage: React.FC = () => {
   const { session } = useAuth(); // Get session state
+  const [googleLoading, setGoogleLoading] = useState<boolean>(false); // Loading state for Google button
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [companyName, setCompanyName] = useState<string>('');
@@ -107,9 +108,30 @@ const SignupPage: React.FC = () => {
     }
   };
 
+  const handleGoogleSignup = async () => {
+    setGoogleLoading(true);
+    setError(null);
+    try {
+      // Same method as login, Supabase handles user creation if needed
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+      });
+      if (error) {
+        throw error;
+      }
+      // Redirect handled by Supabase, session update by AuthContext listener
+    } catch (err: any) {
+      console.error('Google signup error:', err);
+      setError(err.message || 'Google signup failed.');
+      setGoogleLoading(false); // Reset loading on error
+    }
+     // Don't setGoogleLoading(false) on success, page redirects
+  };
+
   return (
     <div className={styles.container}>
       <h1>Sign Up</h1>
+      {/* Email/Password Form */}
       <form onSubmit={handleSubmit} className={styles.form}>
         <div className={styles.formGroup}>
           <label htmlFor="companyName">Company Name:</label>
@@ -148,13 +170,30 @@ const SignupPage: React.FC = () => {
         </div>
         {error && <p className={styles.error}>{error}</p>}
         {successMessage && <p className={styles.success}>{successMessage}</p>}
-        <button type="submit" disabled={loading} className={styles.submitButton}>
-          {loading ? 'Signing up...' : 'Sign Up'}
+        <button type="submit" disabled={loading || googleLoading} className={styles.submitButton}>
+          {loading ? 'Signing up...' : 'Sign Up with Email'}
         </button>
-         <p className={styles.loginLink}>
-          Already have an account? <Link to="/login">Login</Link>
-        </p>
       </form>
+
+      <div className={styles.divider}>OR</div>
+
+       {/* Google Signup Button */}
+       <button
+        onClick={handleGoogleSignup}
+        disabled={loading || googleLoading}
+        className={`${styles.submitButton} ${styles.googleButton}`}
+      >
+        {googleLoading ? 'Redirecting...' : 'Sign Up with Google'}
+      </button>
+
+       {/* Display general errors */}
+       {error && !loading && !googleLoading && <p className={styles.error}>{error}</p>}
+       {successMessage && <p className={styles.success}>{successMessage}</p>}
+
+
+       <p className={styles.loginLink}>
+        Already have an account? <Link to="/login">Login</Link>
+      </p>
     </div>
   );
 };
