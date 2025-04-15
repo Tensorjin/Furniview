@@ -17,11 +17,10 @@ const CreateProfilePage: React.FC = () => {
         }
         setLoading(true);
         setError(null);
-        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
         try {
             await axios.post(
-                `${apiUrl}/api/companies`,
+                'http://localhost:3001/api/companies',
                 { companyName },
                 {
                     headers: {

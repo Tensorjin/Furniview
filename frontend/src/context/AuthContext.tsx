@@ -45,9 +45,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           return;
       }
       setLoadingProfile(true);
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
       try {
-          const { data } = await axios.get<CompanyProfile>(`${apiUrl}/api/companies/me`, {
+          const { data } = await axios.get<CompanyProfile>('http://localhost:3001/api/companies/me', {
               headers: {
                   'Authorization': `Bearer ${currentSession.access_token}`
               }
