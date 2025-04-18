@@ -44,7 +44,7 @@ Product Design
 User Experience Flow
 For Companies
 Sign up and select subscription tier.
-Upload 3D models or 2D instructions for conversion.
+Upload 3D models for conversion.
 Review and approve processed 3D instructions.
 Publish to the consumer platform.
 Access analytics dashboard.
@@ -62,10 +62,19 @@ Company dashboard for instruction management
 Consumer-friendly search and navigation
 Optimized performance for quick loading
 Mobile compatibility
+
+#### Authentication (Future Enhancement)
+*   **Google Sign-In:** Plan to implement Google Sign-In to offer users a quick and familiar way to optionally create an account. This could enable features like saving favorite instructions or providing personalized feedback in future iterations.
+
 Advanced Features
 Analytics dashboard for companies
 Feedback collection from end users
 Branding customization options
+
+#### Future AI Enhancements (Post-MVP)
+*   **AI-Generated Assembly Videos:** Explore using AI to automatically generate video walkthroughs based on the interactive 3D assembly steps, offering an alternative viewing format.
+*   **AI 2D-to-3D Instruction Generation:** Investigate AI models capable of interpreting traditional 2D instruction manuals (images/diagrams) and generating initial 3D assembly sequences, potentially speeding up the onboarding process for companies.
+
 Marketing Strategy
 Customer Acquisition
 Direct outreach to smaller furniture companies and startups.
@@ -113,12 +122,15 @@ Technical Issues: High server costs and 3D rendering performance risks.
 Pricing Concerns: Original usage-based model could deter clients.
 Competition: Larger firms or free alternatives may dominate.
 Market Education: Consumers may not recognize the value immediately.
+AI Feature Complexity: Developing AI for video generation and 2D-to-3D conversion is technically complex and costly.
+AI Accuracy & Reliability: AI-generated content might require significant manual oversight or correction, diminishing its value.
 Mitigation Strategies
 Adoption: Offer free trials and pilot programs to prove value, starting with smaller, agile companies.
 Technical: Partner with cloud providers for cost-effective, scalable infrastructure and optimize 3D processing.
 Pricing: Shift to a tiered flat-fee model for predictability and appeal.
 Competition: Highlight specialized features and dedicated support over generic solutions.
 Education: Launch a multi-channel marketing campaign with testimonials and demos.
+AI Features: Approach AI development iteratively, starting with simpler use cases. Partner with AI specialists or leverage existing platforms where possible. Set clear expectations about AI capabilities and required oversight.
 Pricing Strategy Rationale
 The tiered subscription model ensures predictable costs for clients and scales with the value delivered. It:
 

@@ -15,8 +15,11 @@ graph TD
     subgraph Product Design
         B1[User Experience Flows]
         B2[Key Features]
+        B2 --> B2a[Google Sign-In (Future)]
+        B2 --> B2b[AI Video Gen (Future)]
+        B2 --> B2c[AI 2D->3D Gen (Future)]
     end
-    
+
     subgraph Business Model
         C1[Revenue Streams]
         C2[Cost Structure]

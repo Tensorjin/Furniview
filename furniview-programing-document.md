@@ -33,7 +33,7 @@ Furniview is a website where companies upload furniture files (common 3D formats
    - Create a Supabase project.
    - Set up a PostgreSQL database for furniture and user data.
    - Configure storage buckets for GLTF files.
-   - Enable authentication for companies and end users.
+   - Enable authentication for companies and end users (including setting up Google Sign-In as an OAuth provider in Supabase).
 2. **File Upload and Storage**:
    - Build an API endpoint (e.g., `/upload`) using Express.js to accept file uploads from the frontend.
    - Store files in Supabase Storage.
@@ -76,9 +76,11 @@ Furniview is a website where companies upload furniture files (common 3D formats
    - Use React to build components.
    - Language: JavaScript with React.
 2. **Authentication**:
-   - Create login/registration forms.
-   - Use Supabase’s JavaScript SDK to connect to the backend’s authentication endpoints.
-   - Language: JavaScript with React.
+   - Implement login/registration flows.
+   - Integrate Supabase Auth UI or build custom forms.
+   - Add a "Sign in with Google" button using Supabase's JavaScript SDK for OAuth.
+   - Handle authentication state within the React application.
+   - Language: JavaScript with React and Supabase SDK.
 3. **File Upload Interface (for Companies)**:
    - Build a form to upload supported 3D files (STL, OBJ, FBX, etc.).
    - Send files to the backend’s `/upload` endpoint using Fetch API or Axios.
@@ -114,6 +116,22 @@ Furniview is a website where companies upload furniture files (common 3D formats
 
 ---
 
+#### Phase 4: Future AI Enhancements (Post-MVP)
+**Purpose**: Explore AI capabilities to further enhance the platform's value. Note: These tasks involve significant technical complexity and potential challenges regarding accuracy and reliability, requiring careful research and iterative development.
+
+**Potential Tasks**:
+1.  **AI-Generated Assembly Videos**:
+    *   Research and integrate AI models (potentially leveraging computer vision and animation techniques) to automatically generate video walkthroughs from the existing 3D instruction steps.
+    *   Requires backend processing and potentially new frontend components for video display.
+    *   Language/Tools: Python (for AI/ML libraries), Node.js (backend integration), JavaScript/React (frontend).
+2.  **AI 2D-to-3D Instruction Generation**:
+    *   Investigate computer vision AI models to interpret uploaded 2D instruction manuals (diagrams, images).
+    *   Develop a pipeline to translate 2D steps into a preliminary 3D assembly sequence, which companies can then refine.
+    *   This could significantly speed up the content creation process for companies using traditional manuals.
+    *   Language/Tools: Python (for AI/ML libraries), Node.js (backend integration).
+
+---
+
 ### Frontend and Backend Interaction
 **How They Communicate**:
 - **Method**: RESTful API  
@@ -123,7 +141,7 @@ Furniview is a website where companies upload furniture files (common 3D formats
   - **Upload**: Frontend sends files to backend → Backend stores in Supabase Storage.
   - **Conversion**: Backend detects new 3D file, converts to GLTF, and stores it.
   - **Retrieval**: Frontend requests data via `GET /furniture` → Backend fetches from Supabase and sends it back.
-- **Authentication**: Supabase manages user login; the backend verifies tokens for secure access.
+- **Authentication**: Supabase manages user login (email/password and Google Sign-In); the backend verifies JWT tokens provided by Supabase for secure API access.
 
 **Why This Works**:
 - Keeps the backend focused on data and files, while the frontend handles presentation.
@@ -160,12 +178,12 @@ Furniview is a website where companies upload furniture files (common 3D formats
    - Furniture data and user management endpoints.
 3. **Frontend Components**:  
    - Authentication forms.  
-   - File upload interface.  
+   - File upload interface.
    - Furniture viewer with instructions.
 4. **3D Rendering**:
    - Three.js for 3D rendering.
 5. **Testing and Integration**:
-   - Connect frontend to backend.
+   - Connect frontend to backend.  
    - Test across devices and fix issues.
 
 ---
