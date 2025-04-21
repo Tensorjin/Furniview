@@ -1,4 +1,4 @@
-const { supabase } = require('../server'); // Import Supabase client from server setup
+const { supabase } = require('../../server'); // Import Supabase client from server setup
 
 exports.signup = async (req, res) => {
     const { email, password } = req.body;
