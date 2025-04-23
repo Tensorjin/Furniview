@@ -1,4 +1,4 @@
-// const { supabase } = require('../server'); // Import supabase client from server.js if needed directly
+// const { supabase } = require('../utils/supabaseClient'); // Import supabase client from utility file if needed directly
 
 // Placeholder for furniture item CRUD logic
 

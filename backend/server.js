@@ -1,18 +1,5 @@
-require('dotenv').config();
+require('dotenv').config(); // Keep dotenv config here for PORT etc.
 const express = require('express');
-const { createClient } = require('@supabase/supabase-js');
-
-// Check if Supabase URL and Key are set
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('Error: SUPABASE_URL and SUPABASE_ANON_KEY must be set in .env file');
-  process.exit(1); // Exit the process with an error code
-}
-
-// Initialize Supabase client
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // Initialize Express app
 const app = express();
@@ -40,4 +27,4 @@ app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
 });
 
-module.exports = { app, supabase }; // Export for potential testing or extension
+module.exports = { app }; // Only export app now
