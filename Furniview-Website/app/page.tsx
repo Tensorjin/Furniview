@@ -6,7 +6,6 @@ import { ArrowRight, CheckCircle2, CuboidIcon as Cube3d, Upload, Users } from "l
 import { ScrollReveal } from "@/components/scroll-reveal"
 
 export default function Home() {
-
   return (
     <div className="flex flex-col items-center">
       {/* Hero Section */}
