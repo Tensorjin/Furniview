@@ -1,0 +1,92 @@
+# Key Backend Flows (Supabase Integration)
+
+This document outlines the primary backend interactions with Supabase as defined in the PRD.
+
+## Supabase Client Setup
+- **Client-side:** `lib/supabase/client.ts`
+  - Uses `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
+  - Creates a singleton instance of the Supabase client for use in browser/React components.
+  ```typescript
+  // Simplified from PRD
+  import { createClient } from '@supabase/supabase-js'
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+
+  // Singleton client
+  let supabaseClient: ReturnType<typeof createClient> | null = null
+  export const getSupabaseClient = () => {
+    if (!supabaseClient) {
+      supabaseClient = createClient(supabaseUrl, supabaseAnonKey)
+    }
+    return supabaseClient
+  }
+  ```
+
+- **Server-side (Admin):** `lib/supabase/server.ts`
+  - Uses `SUPABASE_URL` (or `NEXT_PUBLIC_SUPABASE_URL`) and `SUPABASE_SERVICE_ROLE_KEY`.
+  - Creates a Supabase client with admin privileges for server-side operations (API routes, server actions).
+  ```typescript
+  // Simplified from PRD
+  import { createClient } from '@supabase/supabase-js'
+
+  const supabaseUrl = process.env.SUPABASE_URL! // Or NEXT_PUBLIC_SUPABASE_URL
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+
+  export const getSupabaseAdmin = () => {
+    return createClient(supabaseUrl, supabaseServiceKey)
+  }
+  ```
+
+## Authentication (Supabase Auth)
+- **Sign Up:**
+  - Use `supabase.auth.signUp({ email, password })`.
+  - Handle success and errors.
+- **Sign In (Email/Password):**
+  - Use `supabase.auth.signInWithPassword({ email, password })`.
+  - Handle success and errors.
+- **Other Auth Flows (to consider):**
+  - Sign out: `supabase.auth.signOut()`.
+  - Password recovery.
+  - OAuth providers (if planned).
+  - Session management.
+
+## Database Operations (Supabase Client)
+- **General Approach:** Use the `getSupabaseClient()` (client-side) or `getSupabaseAdmin()` (server-side) to get a Supabase instance.
+- **Fetching Data:**
+  ```typescript
+  // Example: Get all furniture models
+  const { data, error } = await supabase.from('furniture_models').select('*')
+  ```
+- **Inserting Data:**
+  ```typescript
+  // Example: Create a furniture model
+  const { data, error } = await supabase.from('furniture_models').insert([modelData]).select()
+  // .select() returns the inserted record(s)
+  ```
+- **Updating Data:** (Not explicitly in PRD example, but standard)
+  ```typescript
+  const { data, error } = await supabase.from('table_name').update({ column: 'new_value' }).eq('id', recordId).select()
+  ```
+- **Deleting Data:** (Not explicitly in PRD example, but standard)
+  ```typescript
+  const { data, error } = await supabase.from('table_name').delete().eq('id', recordId)
+  ```
+- **Error Handling:** Always check for and handle `error` objects returned from Supabase calls.
+
+## File Storage (Supabase Storage)
+- **Uploading Files:**
+  ```typescript
+  // Example: Upload a 3D model file
+  const { data, error } = await supabase.storage.from('models') /* bucket name */ .upload(filePath, fileObject)
+  ```
+- **Considerations:**
+  - Bucket setup and RLS policies for storage.
+  - File naming conventions and paths.
+  - Retrieving file URLs.
+
+## Key Actions from PRD to Implement:
+- Create database schema.
+- Implement Supabase auth on signup and login pages.
+- Add 3D model upload functionality.
+

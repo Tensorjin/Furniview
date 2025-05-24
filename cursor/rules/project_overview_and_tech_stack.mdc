@@ -1,0 +1,44 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Project Overview
+
+Furniview is a platform designed to revolutionize the furniture assembly process by providing interactive 3D assembly instructions. It aims to replace traditional paper manuals with an intuitive, user-friendly digital experience. The platform will serve both furniture companies, allowing them to upload and manage 3D models of their products, and end customers, who will use the interactive instructions for assembly.
+
+Key Goals:
+- Simplify furniture assembly for end customers.
+- Reduce frustration and errors associated with traditional manuals.
+- Help furniture companies decrease support calls and product returns related to assembly difficulties.
+- Enhance overall customer satisfaction and brand perception for furniture companies.
+
+# Tech Stack
+
+## Frontend
+- **Framework:** Next.js (React)
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS
+- **UI Components:** Shadcn UI (or similar, based on PRD's component examples)
+- **State Management:** React Context API, `useState`
+- **Animations:** Custom CSS animations, potentially libraries like Framer Motion if needed later.
+- **Forms:** Controlled components with React state.
+
+## Backend
+- **Platform:** Supabase
+  - **Authentication:** Supabase Auth
+  - **Database:** Supabase (PostgreSQL)
+  - **Storage:** Supabase Storage
+- **Language:** TypeScript (for serverless functions if used, and client-side interactions)
+
+## Development Tools
+- **Package Manager:** PNPM
+- **Version Control:** Git
+- **Linting:** ESLint
+- **Type Checking:** TypeScript
+- **IDE/Editor:** (User's choice, e.g., VS Code with Cursor)
+
+## Deployment
+- **Platform:** Vercel
+- **CI/CD:** Vercel's automatic deployments from Git.
+

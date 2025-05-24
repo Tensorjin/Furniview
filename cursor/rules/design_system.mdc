@@ -1,0 +1,83 @@
+# Design System & Styling Guidelines
+
+## Philosophy
+Adhere to Apple-inspired design principles: Clarity, Simplicity, Attention to Detail.
+
+## Styling: Tailwind CSS
+- Utilize the custom Tailwind CSS configuration (`tailwind.config.ts`).
+- **Color Palette:** Refer to the defined Apple-inspired palette:
+  - `background: { DEFAULT: "#FAFAF8", subtle: "#F0EFEA", muted: "#F6F1EB" }`
+  - `foreground: { DEFAULT: "#141413", subtle: "#3A3935", muted: "#605F5B" }`
+  - `primary: { DEFAULT: "#141413", soft: "#23241F", dark: "#191919" }`
+  - `secondary: { DEFAULT: "#C4C3BB", soft: "#A3A299", light: "#E6E4DD" }`
+  - `accent: { blue: "#61AAF2", green: "#7EBF8E", yellow: "#F2FF44", beige: "#EBDBBC", peach: "#D2886F", tan: "#D4A27F" }`
+  - (And other colors defined in `tailwind.config.ts`)
+- **Spacing & Layout:**
+  - Use Tailwind's spacing scale consistently.
+  - Employ the `container` class for width constraints.
+  - Use flexbox and grid for layouts.
+  - Implement responsive design using prefixes (`sm:`, `md:`, `lg:`, `xl:`).
+- **Component Styling:**
+  - Compose styles using Tailwind classes.
+  - Group related styles.
+  - Maintain consistent spacing patterns.
+  - Use the `cn()` utility for merging/conditional class names.
+
+## Custom Animations
+- Defined in `styles/animations.css`.
+- Available animations:
+  - `animate-fade-in`
+  - `animate-slide-up`
+  - `animate-slide-down`
+  - `animate-scale-in`
+  - `animate-float`
+  - `animate-pulse-subtle`
+- Use `stagger-1` through `stagger-5` for staggered animations.
+
+## Component Structure
+- **Props Handling:**
+  - Define props using TypeScript interfaces.
+  - Extend HTML element props when appropriate (`extends React.HTMLAttributes<HTMLElement>`).
+  - Use destructuring to access props.
+  - Provide default values for optional props.
+  - Use the `cn()` utility for merging class names.
+- **Functional Components:** Use functional components with React Hooks.
+- **File Organization:**
+  - Reusable components in `components/`.
+  - Page-specific components co-located or in a sub-folder if complex.
+  - UI primitives (e.g., from Shadcn) in `components/ui/`.
+- **Example Structure (from PRD):**
+  ```typescriptreact
+  import React from 'react'
+  import { cn } from '@/lib/utils' // Assuming cn utility path
+
+  interface MyComponentProps extends React.HTMLAttributes<HTMLDivElement> {
+    title: string;
+    isActive?: boolean;
+    children: React.ReactNode;
+  }
+
+  export function MyComponent({ title, isActive = false, children, className, ...props }: MyComponentProps) {
+    return (
+      <div className={cn("p-4 border", { "bg-blue-100": isActive }, className)} {...props}>
+        <h2 className="text-xl font-semibold">{title}</h2>
+        <div>{children}</div>
+      </div>
+    );
+  }
+  ```
+
+## Responsive Design
+- Mobile-first approach.
+- Test on multiple device sizes.
+- Ensure touch-friendly targets on mobile.
+- Use appropriate text sizes for each breakpoint.
+
+## Accessibility (General)
+- Use semantic HTML.
+- Ensure proper heading hierarchy.
+- Provide alt text for images.
+- Ensure sufficient color contrast.
+- Support keyboard navigation.
+- (Refer to full PRD for ARIA, Focus Management, etc.)
+

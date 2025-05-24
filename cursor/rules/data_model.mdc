@@ -1,0 +1,18 @@
+# Data Model (Supabase)
+
+This document will outline the database schema for the Furniview project, implemented in Supabase (PostgreSQL).
+
+Key Entities (to be detailed):
+- Users (for both customers and company representatives)
+- Furniture Companies
+- Furniture Models (including 3D model references, assembly steps, metadata)
+- User Profiles
+- Potentially: Usage analytics, feedback/ratings for instructions.
+
+We will define:
+- Tables and their columns (with data types and constraints)
+- Relationships between tables (foreign keys)
+- Row Level Security (RLS) policies for data access control.
+
+*This section will be populated as we design and implement the Supabase database schema.*
+

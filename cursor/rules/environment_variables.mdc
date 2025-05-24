@@ -1,0 +1,34 @@
+# Environment Variables
+
+## Required Variables
+
+These environment variables must be set for the application to function correctly.
+It's recommended to use a `.env.local` file (gitignored) in the `Furniview-Website` directory for local development.
+
+- **`NEXT_PUBLIC_SUPABASE_URL`**: The URL of your Supabase project.
+  - *Client-side accessible*
+
+- **`NEXT_PUBLIC_SUPABASE_ANON_KEY`**: The anonymous public key for your Supabase project.
+  - *Client-side accessible*
+
+- **`SUPABASE_SERVICE_ROLE_KEY`**: The service role key for your Supabase project.
+  - *Server-side only. Keep this secret and never expose it on the client side.*
+
+- **`SUPABASE_JWT_SECRET`**: The JWT secret used by Supabase for signing tokens.
+  - *Server-side only, for token verification if needed outside Supabase client directly.*
+
+## Usage
+
+- **Client-side (Next.js):** Access variables prefixed with `NEXT_PUBLIC_` via `process.env.NEXT_PUBLIC_VARIABLE_NAME`.
+- **Server-side (Next.js API routes, server components, Supabase admin client):** Access all defined variables via `process.env.VARIABLE_NAME`.
+
+## Notes
+- Ensure these variables are also configured in your Vercel deployment environment settings.
+- For local development, create `Furniview-Website/.env.local` and add the variables there:
+  ```env
+  NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+  NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+  SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+  SUPABASE_JWT_SECRET=your_supabase_jwt_secret
+  ```
+

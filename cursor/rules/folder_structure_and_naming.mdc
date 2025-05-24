@@ -1,0 +1,79 @@
+# Folder Structure and Naming Conventions
+
+## Folder Structure (Illustrative - based on Next.js App Router)
+
+```
+Furniview-Website/
+├── app/                      # Next.js App Router: Pages and Layouts
+│   ├── (auth)/               # Route group for auth pages (e.g., signup, login)
+│   │   ├── signup/
+│   │   └── login/
+│   ├── browse/               # Example feature route
+│   ├── model/[id]/         # Dynamic route for viewing a model
+│   ├── layout.tsx            # Root layout
+│   └── page.tsx              # Homepage
+├── components/
+│   ├── ui/                   # UI Primitives (e.g., Shadcn UI components)
+│   │   ├── button.tsx
+│   │   └── ...
+│   ├── common/               # Common reusable components (e.g., Navbar, Footer)
+│   │   ├── navbar.tsx
+│   │   └── footer.tsx
+│   └── features/             # Components specific to certain features
+│       └── model-viewer/
+│           └── model-viewer.tsx
+├── lib/
+│   ├── supabase/             # Supabase client configurations
+│   │   ├── client.ts         # Client-side Supabase instance
+│   │   └── server.ts         # Server-side/Admin Supabase instance
+│   └── utils.ts              # Utility functions (e.g., cn)
+│   └── hooks/                # Custom React Hooks (if general enough)
+├── public/                   # Static assets (images, fonts, etc.)
+├── styles/
+│   ├── globals.css           # Global styles
+│   └── animations.css        # Custom animations
+├── .env.local                # Local environment variables (gitignored)
+├── next.config.mjs           # Next.js configuration
+├── tailwind.config.ts        # Tailwind CSS configuration
+├── tsconfig.json             # TypeScript configuration
+└── package.json
+```
+
+**Key Directory Explanations from PRD:**
+- `app/`: Pages, layouts, server components.
+- `components/`: Reusable UI components.
+  - `ui/`: Base UI elements (e.g., buttons, cards).
+- `hooks/`: Custom React Hooks (if any, or within `lib/hooks/`).
+- `lib/`: Utility functions, Supabase clients, constants.
+- `public/`: Static assets.
+- `styles/`: Global styles, custom CSS (like `animations.css`).
+
+## Naming Conventions
+
+### General
+- **Clarity and Conciseness:** Names should be descriptive yet brief.
+
+### Files
+- **Components & Pages (tsx):** `kebab-case.tsx` (e.g., `user-profile.tsx`, `page.tsx`, `layout.tsx`)
+  - *PRD Example Shows PascalCase for component files (e.g., `MyComponent.tsx`). We should clarify and stick to one. Given Next.js common practice, `kebab-case.tsx` for files containing a default export component is also common, or `PascalCase.tsx` if the filename directly matches the component name.* **Let's default to `kebab-case.tsx` for page/layout files and `PascalCase.tsx` for component files if the file exports a single named component.**
+- **Utility/Hook Files (ts):** `kebab-case.ts` (e.g., `use-auth.ts`, `string-utils.ts`)
+- **Style Files (css):** `kebab-case.css` (e.g., `animations.css`)
+
+### Components
+- **React Components:** `PascalCase` (e.g., `UserProfile`, `PrimaryButton`).
+- **Props Interfaces:** `ComponentNameProps` (e.g., `UserProfileProps`).
+
+### Functions & Variables
+- **JavaScript/TypeScript:** `camelCase` (e.g., `getUserData`, `isLoading`).
+- **Constants:** `UPPER_SNAKE_CASE` (e.g., `MAX_USERS`).
+
+### CSS Classes (Tailwind)
+- Follow Tailwind's utility-first approach.
+- Custom classes (if absolutely necessary, try to avoid): `prefix-kebab-case` (e.g., `furn-custom-card`).
+  - *The PRD does not specify a prefix; this is a suggestion for maintainability if custom non-Tailwind classes are introduced.*
+
+### Supabase (Database)
+- **Tables:** `snake_case` (plural, e.g., `user_profiles`, `furniture_models`).
+- **Columns:** `snake_case` (e.g., `user_id`, `created_at`).
+- **Functions/Procedures:** `snake_case`.
+
