@@ -3,16 +3,108 @@
 This document will outline the database schema for the Furniview project, implemented in Supabase (PostgreSQL).
 
 Key Entities (to be detailed):
-- Users (for both customers and company representatives)
-- Furniture Companies
-- Furniture Models (including 3D model references, assembly steps, metadata)
-- User Profiles
-- Potentially: Usage analytics, feedback/ratings for instructions.
+# Data Model (Supabase)
 
-We will define:
-- Tables and their columns (with data types and constraints)
-- Relationships between tables (foreign keys)
-- Row Level Security (RLS) policies for data access control.
+This document outlines the database schema for the Furniview project, implemented in Supabase (PostgreSQL).
 
-*This section will be populated as we design and implement the Supabase database schema.*
+## Tables
+
+### `auth.users` (Built-in Supabase Table)
+- Manages user authentication data (email, password hashes, etc.).
+- `id` (uuid) is the primary key, referenced by other tables.
+
+### `public.companies`
+- Stores information about furniture companies.
+- **Schema:**
+  ```sql
+  CREATE TABLE companies (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+    name TEXT NOT NULL,
+    website_url TEXT,
+    contact_email TEXT
+  );
+  ```
+- **RLS Policies Summary:**
+  - **INSERT:** Authenticated users can create companies.
+  - **SELECT:** Authenticated users can view all companies.
+  - **UPDATE:** Admin members of a company can update their own company.
+  - **DELETE:** (No DELETE policy defined yet - typically highly restricted)
+
+### `public.company_members`
+- Junction table linking users (`auth.users`) to companies (`public.companies`) and defining their role.
+- **Schema:**
+  ```sql
+  CREATE TABLE company_members (
+    company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    role TEXT NOT NULL DEFAULT 'member', -- e.g., 'admin', 'editor', 'viewer'
+    joined_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+    PRIMARY KEY (company_id, user_id)
+  );
+  CREATE INDEX IF NOT EXISTS idx_company_members_user_id ON company_members(user_id);
+  ```
+- **RLS Policies Summary:**
+  - **INSERT:** Admin members of a company can add new members to that company.
+  - **SELECT:** Members can view other members of companies they belong to.
+  - **UPDATE:** (No specific UPDATE policy for roles yet - could be added for admins)
+  - **DELETE:** Admin members can remove members from their company; users can remove themselves (leave).
+
+### `public.furniture_models`
+- Stores information about each furniture model.
+- **Schema:**
+  ```sql
+  -- Helper function for updated_at
+  CREATE OR REPLACE FUNCTION public.update_updated_at_column()
+  RETURNS TRIGGER AS $$
+  BEGIN
+    NEW.updated_at = now();
+    RETURN NEW;
+  END;
+  $$ language 'plpgsql';
+
+  CREATE TABLE furniture_models (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+    updated_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+    name TEXT NOT NULL,
+    description TEXT,
+    company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+    uploader_user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE SET NULL,
+    model_file_path TEXT,
+    status TEXT NOT NULL DEFAULT 'draft', 
+    tags TEXT[],
+    assembly_steps JSONB,
+    viewer_config JSONB,
+    CONSTRAINT check_status_values CHECK (status IN ('draft', 'processing', 'published', 'archived'))
+  );
+  
+  CREATE TRIGGER handle_furniture_models_updated_at
+    BEFORE UPDATE ON public.furniture_models
+    FOR EACH ROW
+    EXECUTE PROCEDURE public.update_updated_at_column();
+
+  CREATE INDEX IF NOT EXISTS idx_furniture_models_company_id ON furniture_models(company_id);
+  CREATE INDEX IF NOT EXISTS idx_furniture_models_uploader_user_id ON furniture_models(uploader_user_id);
+  CREATE INDEX IF NOT EXISTS idx_furniture_models_status ON furniture_models(status);
+  CREATE INDEX IF NOT EXISTS idx_furniture_models_tags ON furniture_models USING GIN (tags);
+  ```
+- **RLS Policies Summary:**
+  - **INSERT:** Authenticated users who are 'admin' or 'editor' members of a company can insert models for that company (and `uploader_user_id` must be their own `auth.uid()`).
+  - **SELECT:**
+    - Public (anon, authenticated) can view models where `status = 'published'`.
+    - Authenticated members of a company can view all models belonging to their company.
+  - **UPDATE:** Authenticated users who are 'admin' or 'editor' members of a company can update models for that company.
+  - **DELETE:** Authenticated users who are 'admin' members of a company can delete models for that company.
+
+## Relationships
+- `company_members.company_id` -> `companies.id` (Many-to-One)
+- `company_members.user_id` -> `auth.users.id` (Many-to-One)
+- `furniture_models.company_id` -> `companies.id` (Many-to-One)
+- `furniture_models.uploader_user_id` -> `auth.users.id` (Many-to-One)
+
+## Notes
+- RLS (Row Level Security) is enabled on `companies`, `company_members`, and `furniture_models`.
+- Specific `WITH CHECK` clauses in RLS policies ensure data integrity during inserts/updates based on user roles and permissions.
+- The `update_updated_at_column` trigger function automatically updates the `updated_at` field on `furniture_models` table modifications.
 
