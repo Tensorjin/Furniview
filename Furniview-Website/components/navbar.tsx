@@ -5,6 +5,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Menu, X, LogOut, LayoutDashboard } from "lucide-react"
 import { useAuth } from "@/components/auth/auth-provider"
+import { buttonVariants } from "@/components/ui/button"
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -48,23 +49,22 @@ export function Navbar() {
               <div className="animate-pulse h-10 w-24 bg-gray-300 rounded-md"></div>
             ) : user ? (
               <>
-                <Link href="/dashboard">
-                  <Button variant="outline">
-                    <LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard
-                  </Button>
+                <Link href="/dashboard" className={buttonVariants({ variant: "ghost" })}>
+                  Dashboard
                 </Link>
-                <Button onClick={handleSignOut} variant="ghost" size="icon" title="Logout">
-                  <LogOut className="h-5 w-5" />
-                </Button>
+                <Link href="/dashboard/models" className={buttonVariants({ variant: "ghost" })}>
+                  Manage Models
+                </Link>
+                <Button onClick={handleSignOut} variant="outline">Logout</Button>
               </>
             ) : (
               <>
                 <Link href="/login">
                   <Button variant="outline">Login</Button>
                 </Link>
-                <Link href="/signup"> 
+          <Link href="/signup">
                   <Button>Get Started</Button>
-                </Link>
+          </Link>
               </>
             )}
           </div>
@@ -117,7 +117,7 @@ export function Navbar() {
                   <>
                     <Link href="/dashboard" className="block mb-4" onClick={() => setMobileMenuOpen(false)}>
                       <Button variant="outline" className="w-full text-base">
-                         <LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard
+                        <LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard
                       </Button>
                     </Link>
                     <Button onClick={handleSignOut} variant="ghost" className="w-full text-base justify-start px-2 py-2 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30">
@@ -128,10 +128,10 @@ export function Navbar() {
                   <div className="space-y-4">
                     <Link href="/login" className="block" onClick={() => setMobileMenuOpen(false)}>
                       <Button variant="outline" className="w-full text-base">Login</Button>
-                    </Link>
+              </Link>
                     <Link href="/signup" className="block" onClick={() => setMobileMenuOpen(false)}>
                        <Button className="w-full text-base">Get Started</Button>
-                    </Link>
+              </Link>
                   </div>
                 )}
               </div>
