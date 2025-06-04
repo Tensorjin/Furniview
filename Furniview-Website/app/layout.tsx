@@ -23,14 +23,14 @@ export default function RootLayout({
       <body className="min-h-screen bg-background font-sans antialiased">
         <ThemeProvider attribute="class" defaultTheme="light">
           <AuthProvider>
-            <div className="relative flex min-h-screen flex-col">
-              <Navbar />
-              <main className="flex-1">
-                <PageTransition>{children}</PageTransition>
-              </main>
-              <Footer />
-              <ScrollToTop />
-            </div>
+          <div className="relative flex min-h-screen flex-col">
+            <Navbar />
+            <main className="flex-1">
+              <PageTransition>{children}</PageTransition>
+            </main>
+            <Footer />
+            <ScrollToTop />
+          </div>
           </AuthProvider>
         </ThemeProvider>
       </body>

@@ -52,9 +52,6 @@ export function Navbar() {
                 <Link href="/dashboard" className={buttonVariants({ variant: "ghost" })}>
                   Dashboard
                 </Link>
-                <Link href="/dashboard/models" className={buttonVariants({ variant: "ghost" })}>
-                  Manage Models
-                </Link>
                 <Button onClick={handleSignOut} variant="outline">Logout</Button>
               </>
             ) : (
