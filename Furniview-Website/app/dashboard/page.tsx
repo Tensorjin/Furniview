@@ -3,12 +3,12 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/components/auth/auth-provider';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { getSupabaseClient } from '@/lib/supabase/client';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { PlusCircle, Building } from 'lucide-react';
+import { PlusCircle, Building, PackageSearch } from 'lucide-react';
 
 interface Company {
   id: string;
@@ -21,6 +21,17 @@ interface CompanyMembership {
   companies: Company;
 }
 
+interface FurnitureModel {
+  id: string;
+  name: string;
+  description?: string | null;
+  created_at: string;
+  updated_at: string;
+  company_id: string;
+  created_by_user_id: string;
+  // Future fields: glb_file_path, thumbnail_url, etc.
+}
+
 export default function DashboardPage() {
   const supabase = getSupabaseClient();
   const { user, isLoading: authLoading } = useAuth();
@@ -30,6 +41,11 @@ export default function DashboardPage() {
   const [userCompanies, setUserCompanies] = useState<CompanyMembership[]>([]);
   const [companiesLoading, setCompaniesLoading] = useState(true);
   const [companiesError, setCompaniesError] = useState<string | null>(null);
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null);
+
+  const [models, setModels] = useState<FurnitureModel[]>([]);
+  const [modelsLoading, setModelsLoading] = useState(false);
+  const [modelsError, setModelsError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -62,7 +78,11 @@ export default function DashboardPage() {
             console.error("Error fetching user companies:", error);
             throw error;
           }
-          setUserCompanies(data as CompanyMembership[] || []);
+          const companiesData = data as CompanyMembership[] || [];
+          setUserCompanies(companiesData);
+          if (!selectedCompanyId && companiesData.length > 0 && companiesData[0].companies) {
+            setSelectedCompanyId(companiesData[0].companies.id);
+          }
         } catch (e: any) {
           setCompaniesError(e.message || "Failed to load companies.");
         }
@@ -72,6 +92,34 @@ export default function DashboardPage() {
     }
   }, [user, supabase, searchParams]);
 
+  useEffect(() => {
+    if (selectedCompanyId && user) {
+      const fetchModels = async () => {
+        setModelsLoading(true);
+        setModelsError(null);
+        setModels([]);
+        try {
+          const { data, error } = await supabase
+            .from('furniture_models')
+            .select('*')
+            .eq('company_id', selectedCompanyId);
+
+          if (error) {
+            console.error('Error fetching furniture models:', error);
+            throw error;
+          }
+          setModels(data as FurnitureModel[] || []);
+        } catch (e: any) {
+          setModelsError(e.message || "Failed to load models.");
+        }
+        setModelsLoading(false);
+      };
+      fetchModels();
+    } else {
+      setModels([]);
+    }
+  }, [selectedCompanyId, user, supabase]);
+
   if (authLoading || !user) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -79,13 +127,15 @@ export default function DashboardPage() {
       </div>
     );
   }
+  
+  const selectedCompanyName = userCompanies.find(c => c.companies?.id === selectedCompanyId)?.companies?.name;
 
   return (
-    <div className="container mx-auto px-4 py-12 pt-24">
+    <div className="container mx-auto px-4 py-12 pt-20 sm:pt-24">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
         <div>
-          <h1 className="text-3xl font-medium">Dashboard</h1>
-          <p className="text-foreground-muted">Welcome, {user.email}!</p>
+          <h1 className="text-3xl font-semibold">Dashboard</h1>
+          <p className="text-foreground-muted">Welcome back, {user.email?.split('@')[0]}!</p>
         </div>
         <Link href="/dashboard/company/create">
             <Button className="w-full sm:w-auto">
@@ -98,63 +148,114 @@ export default function DashboardPage() {
         <Alert className="mb-6 bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-700">
           <AlertTitle className="text-green-700 dark:text-green-300">Company Created!</AlertTitle>
           <AlertDescription className="text-green-600 dark:text-green-400">
-            Your new company has been successfully set up.
+            Your new company has been successfully set up. You can now manage its models.
           </AlertDescription>
         </Alert>
       )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Your Companies</CardTitle>
-          <CardDescription>
-            Manage your companies and their furniture models from here.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {companiesLoading && <p>Loading your companies...</p>}
-          {companiesError && <p className="text-red-500">Error: {companiesError}</p>}
-          {!companiesLoading && !companiesError && userCompanies.length === 0 && (
-            <div className="text-center py-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-1 space-y-6">
+            <Card>
+                <CardHeader>
+                <CardTitle>Your Companies</CardTitle>
+                <CardDescription>
+                    Select a company to manage its models.
+                </CardDescription>
+                </CardHeader>
+                <CardContent>
+                {companiesLoading && <p>Loading your companies...</p>}
+                {companiesError && <p className="text-red-500">Error: {companiesError}</p>}
+                {!companiesLoading && !companiesError && userCompanies.length === 0 && (
+                    <div className="text-center py-8">
+                        <Building className="mx-auto h-12 w-12 text-foreground-muted mb-4" />
+                    <p className="mb-4 text-foreground-muted">No companies found.</p>
+                    <Link href="/dashboard/company/create">
+                        <Button variant="outline">Create Your First Company</Button>
+                    </Link>
+                    </div>
+                )}
+                {!companiesLoading && !companiesError && userCompanies.length > 0 && (
+                    <ul className="space-y-3">
+                    {userCompanies.map((membership) => (
+                        <li key={membership.companies.id}>
+                            <Button 
+                                variant={selectedCompanyId === membership.companies.id ? "secondary" : "ghost"}
+                                className="w-full justify-start text-left h-auto py-3 px-4"
+                                onClick={() => setSelectedCompanyId(membership.companies.id)}
+                            >
+                                <div>
+                                    <h3 className="font-semibold text-md">
+                                        {membership.companies.name}
+                                    </h3>
+                                    <p className="text-xs text-foreground-muted capitalize">Your role: {membership.role}</p>
+                                </div>
+                            </Button>
+                        </li>
+                    ))}
+                    </ul>
+                )}
+                </CardContent>
+            </Card>
+        </div>
+
+        <div className="lg:col-span-2">
+          {selectedCompanyId ? (
+            <Card>
+              <CardHeader className="flex flex-row justify-between items-center">
+                <div>
+                    <CardTitle>Models for {selectedCompanyName || 'Selected Company'}</CardTitle>
+                    <CardDescription>View, add, or manage 3D models for this company.</CardDescription>
+                </div>
+                <Button size="sm">
+                    <PlusCircle className="mr-2 h-4 w-4" /> Add New Model
+                </Button>
+              </CardHeader>
+              <CardContent>
+                {modelsLoading && <p>Loading models...</p>}
+                {modelsError && <p className="text-red-500">Error: {modelsError}</p>}
+                {!modelsLoading && !modelsError && models.length === 0 && (
+                  <div className="text-center py-10 border-2 border-dashed border-border rounded-md">
+                    <PackageSearch className="mx-auto h-12 w-12 text-foreground-muted mb-4" />
+                    <p className="text-foreground-muted mb-3">No models found for {selectedCompanyName}.</p>
+                    <Button variant="outline" size="sm">
+                        <PlusCircle className="mr-2 h-4 w-4" /> Add First Model
+                    </Button>
+                  </div>
+                )}
+                {!modelsLoading && !modelsError && models.length > 0 && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                    {models.map((model) => (
+                      <Card key={model.id} className="flex flex-col">
+                        <CardHeader>
+                          <CardTitle className="text-lg">{model.name}</CardTitle>
+                        </CardHeader>
+                        <CardContent className="flex-grow">
+                          <p className="text-sm text-foreground-muted line-clamp-3">{model.description || 'No description available.'}</p>
+                        </CardContent>
+                        <CardFooter className="mt-auto">
+                          <Button variant="outline" size="sm" className="w-full">View/Edit</Button>
+                          {/* Placeholder for delete button */}
+                        </CardFooter>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          ) : companiesLoading ? null : (
+            <div className="flex flex-col items-center justify-center text-center p-10 border-2 border-dashed border-border rounded-md min-h-[300px]">
                 <Building className="mx-auto h-12 w-12 text-foreground-muted mb-4" />
-              <p className="mb-4 text-foreground-muted">You are not a member of any companies yet.</p>
-              <Link href="/dashboard/company/create">
-                <Button variant="outline">Create Your First Company</Button>
-              </Link>
+                <h3 className="text-xl font-semibold mb-2">Select a Company</h3>
+                <p className="text-foreground-muted">
+                    {userCompanies.length > 0 ? 
+                        'Please select a company from the list on the left to view its furniture models.' : 
+                        'Create or join a company to start managing furniture models.'
+                    }
+                </p>
             </div>
           )}
-          {!companiesLoading && !companiesError && userCompanies.length > 0 && (
-            <ul className="space-y-4">
-              {userCompanies.map((membership) => (
-                <li key={membership.companies.id} className="border p-4 rounded-md hover:shadow-md transition-shadow">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <h3 className="text-lg font-semibold text-primary">
-                        {membership.companies.name}
-                      </h3>
-                      {membership.companies.website_url && (
-                        <a 
-                            href={membership.companies.website_url} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="text-sm text-blue-600 hover:underline dark:text-blue-400"
-                        >
-                          {membership.companies.website_url}
-                        </a>
-                      )}
-                      <p className="text-xs text-foreground-muted mt-1">Your role: <span className="font-medium capitalize">{membership.role}</span></p>
-                    </div>
-                    <div>
-                      <Link href={`/dashboard/company/${membership.companies.id}/models`}> 
-                        <Button variant="outline" size="sm">Manage Models</Button>
-                      </Link>
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 } 
