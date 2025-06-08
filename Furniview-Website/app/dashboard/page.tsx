@@ -8,8 +8,9 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { getSupabaseClient } from '@/lib/supabase/client';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { PlusCircle, Building, PackageSearch } from 'lucide-react';
+import { PlusCircle, Building, PackageSearch, Trash2 } from 'lucide-react';
 import { AddModelDialog } from '@/components/dashboard/add-model-dialog';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 
 interface Company {
   id: string;
@@ -49,6 +50,8 @@ export default function DashboardPage() {
   const [modelsError, setModelsError] = useState<string | null>(null);
 
   const [isAddModelDialogOpen, setIsAddModelDialogOpen] = useState(false);
+  const [modelToDelete, setModelToDelete] = useState<FurnitureModel | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -124,6 +127,32 @@ export default function DashboardPage() {
 
   const handleModelAdded = () => {
     fetchModels();
+  };
+
+  const handleDeleteModel = async () => {
+    if (!modelToDelete) return;
+    
+    setIsDeleting(true);
+    setModelsError(null);
+    
+    try {
+      const { data, error: invokeError } = await supabase.functions.invoke(
+        'delete-furniture-model',
+        { body: { modelId: modelToDelete.id } }
+      );
+      
+      if (invokeError) throw invokeError;
+      if (data.error) throw new Error(data.details || data.error);
+      
+      fetchModels();
+      
+    } catch (e: any) {
+        console.error("Error deleting model:", e);
+        setModelsError(`Failed to delete model '${modelToDelete.name}': ${e.message}`);
+    } finally {
+        setIsDeleting(false);
+        setModelToDelete(null);
+    }
   };
 
   if (authLoading || !user) {
@@ -242,6 +271,13 @@ export default function DashboardPage() {
                           </CardContent>
                           <CardFooter className="mt-auto flex justify-between items-center">
                             <Button variant="outline" size="xs">View/Edit</Button>
+                            <Button 
+                              variant="destructive" 
+                              size="icon-xs"
+                              onClick={() => setModelToDelete(model)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
                           </CardFooter>
                         </Card>
                       ))}
@@ -271,6 +307,17 @@ export default function DashboardPage() {
           companyId={selectedCompanyId}
           companyName={selectedCompanyName}
           onModelAdded={handleModelAdded}
+        />
+      )}
+      {modelToDelete && (
+        <ConfirmationDialog 
+          isOpen={!!modelToDelete}
+          onOpenChange={(isOpen) => !isOpen && setModelToDelete(null)}
+          onConfirm={handleDeleteModel}
+          isConfirming={isDeleting}
+          title={`Delete Model: ${modelToDelete.name}`}
+          description="This action cannot be undone. This will permanently delete the model and its associated file from storage."
+          confirmText="Yes, Delete Model"
         />
       )}
     </>
